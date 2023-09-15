@@ -10,6 +10,7 @@ app = Flask(__name__)
 app.config.from_object(config)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://habrpuql:PggYGrzmBoFFYntRSRSMstXjCYm6mmxi@bubble.db.elephantsql.com/habrpuql'
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
 

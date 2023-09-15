@@ -36,3 +36,37 @@ if __name__ == '__main__':
     app.run()
 
 
+@app.route('/add_user/<username>/<email>', methods=['GET'])
+def add_user(username, email):
+    new_user = User(username=username, email=email)
+    db.session.add(new_user)
+    db.session.commit()
+    return f'User {new_user.username} added.'
+
+
+@app.route('/users', methods=['GET'])
+def list_users():
+    users = User.query.all()
+    return '<br>'.join([f'User: {user.username}, Email: {user.email}' for user in users])
+
+
+@app.route('/update/<username>/<new_email>', methods=['GET'])
+def update_user(username, new_email):
+    user = User.query.filter_by(username=username).first()
+    if user:
+        user.email = new_email
+        db.session.commit()
+        return f'Email updated to {new_email}.'
+    else:
+        return f'User {username} does not exist.'
+
+
+@app.route('/delete/<username>', methods=['GET'])
+def delete_user(username):
+    user = User.query.filter_by(username=username).first()
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        return f'User {username} deleted.'
+    else:
+        return f'User {username} does not exist.'

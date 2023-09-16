@@ -6,6 +6,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
+from flask_login import current_user
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -117,10 +118,4 @@ def logout():
 
 if __name__ == '__main__':
     app.run()
-
-
-
-
-
-
 

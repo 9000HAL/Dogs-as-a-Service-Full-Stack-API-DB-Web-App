@@ -1,39 +1,57 @@
-from flask import Flask
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate  # Make sure to import this
-import requests
-import config
-from flask import render_template, request, redirect, url_for, flash #documentation reccomend....?
+from flask_migrate import Migrate
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
-
-
+from werkzeug.security import generate_password_hash, check_password_hash
+import requests
 
 app = Flask(__name__)
-app.config.from_object(config)
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://habrpuql:PggYGrzmBoFFYntRSRSMstXjCYm6mmxi@bubble.db.elephantsql.com/habrpuql' = NO WORKS DO NOT USE 
+app.config.from_object('config')
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
 
-
-class User(db.Model):
+# Define the User model
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
         return f'<User {self.username}>'
 
 
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
-@app.route('/')
-def hello_world():
-    return 'Hello, LB!'
+    def __repr__(self):
+        return f'<User {self.username}>'
 
-if __name__ == '__main__':
-    app.run()
+class SignupForm(FlaskForm):
+    username = StringField('Username')
+    email = StringField('Email')
+    password = PasswordField('Password')
+    submit = SubmitField('Signup')
+
+@app.route('/home')
+def home():
+    return 'Hello, Thieves--118!'
+
 
 
 
@@ -82,3 +100,51 @@ def random_dog():
     response = requests.get('https://dog.ceo/api/breeds/image/random')
     data = response.json()
     return f"<img src='{data['message']}'>"
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    form = SignupForm()
+    if form.validate_on_submit():
+        new_user = User(username=form.username.data, email=form.email.data)
+        db.session.add(new_user)
+        db.session.commit()
+        return redirect('/login')
+    return render_template('signup.html', form=form)
+
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        if user and user.check_password(password):
+            login_user(user)
+            return redirect(url_for('hello_world'))
+        else:
+            flash('Invalid username or password')
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('hello_world'))
+
+if __name__ == '__main__':
+    app.run()
+
+
+
+
+
+
+
+
+
+
+
+
+

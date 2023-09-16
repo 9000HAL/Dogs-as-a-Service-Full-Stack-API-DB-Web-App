@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8"/>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!---<link rel="stylesheet" href="static/style.css">-->
     <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -11,6 +12,25 @@
 </head>
 
 <body>
-    <h1>Hello, LB!</h1>
-</body>
+
+   <!-- Include the navigation bar -->
+   {% include 'navbar.html' %}
+
+   <h1>Hello, LB!</h1>
+   <h1 class="text-center">Signup</h1>
+   <form method="post">
+       {{ form.hidden_tag() }}
+       <p>{{ form.username.label }}<br>{{ form.username() }}</p>
+       <p>{{ form.email.label }}<br>{{ form.email() }}</p>
+       <p>{{ form.password.label }}<br>{{ form.password() }}</p>
+       <p>{{ form.submit() }}</p>
+   </form>
+
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+ </body>
 </html>
+
+
+
+
+

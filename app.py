@@ -7,14 +7,22 @@ from wtforms import StringField, PasswordField, SubmitField
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 
+
 app = Flask(__name__)
 app.config.from_object('config')
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+
 # Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 
 # Define the User model
 class User(UserMixin, db.Model):
@@ -32,26 +40,18 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-    
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
-    def __repr__(self):
-        return f'<User {self.username}>'
-
 class SignupForm(FlaskForm):
     username = StringField('Username')
     email = StringField('Email')
     password = PasswordField('Password')
     submit = SubmitField('Signup')
 
-@app.route('/home')
-def home():
-    return 'Hello, Thieves--118!'
 
+
+
+@app.route('/')
+def home():
+    return render_template('index.html')
 
 
 
@@ -62,14 +62,10 @@ def add_user(username, email):
     db.session.commit()
     return f'User {new_user.username} added.'
 
-
-
 @app.route('/users', methods=['GET'])
 def list_users():
     users = User.query.all()
     return '<br>'.join([f'User: {user.username}, Email: {user.email}' for user in users])
-
-
 
 @app.route('/update/<username>/<new_email>', methods=['GET'])
 def update_user(username, new_email):
@@ -81,8 +77,6 @@ def update_user(username, new_email):
     else:
         return f'User {username} does not exist.'
 
-
-
 @app.route('/delete/<username>', methods=['GET'])
 def delete_user(username):
     user = User.query.filter_by(username=username).first()
@@ -93,14 +87,11 @@ def delete_user(username):
     else:
         return f'User {username} does not exist.'
 
-
-
 @app.route('/random_dog', methods=['GET'])
 def random_dog():
     response = requests.get('https://dog.ceo/api/breeds/image/random')
     data = response.json()
     return f"<img src='{data['message']}'>"
-
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -112,8 +103,6 @@ def signup():
         return redirect('/login')
     return render_template('signup.html', form=form)
 
-
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -122,7 +111,7 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and user.check_password(password):
             login_user(user)
-            return redirect(url_for('hello_world'))
+            return redirect(url_for('home'))
         else:
             flash('Invalid username or password')
     return render_template('login.html')
@@ -131,11 +120,10 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('hello_world'))
+    return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run()
-
 
 
 

@@ -4,32 +4,21 @@
     <meta charset="UTF-8"/>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!---<link rel="stylesheet" href="static/style.css">-->
-    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Dogs-as-a-Service-Full-Stack-API-DB-Web-App</title>
-    
-</head>
+  </head>
 
-<body>
+  <body>
 
-   <!-- Include the navigation bar -->
-   {% include 'navbar.html' %}
+    <!-- Include the navigation bar -->
+    {% include 'navbar.html' %}
 
-   <h1>Hello, LB!</h1>
-   <h1 class="text-center">Signup</h1>
-   <form method="post">
-       {{ form.hidden_tag() }}
-       <p>{{ form.username.label }}<br>{{ form.username() }}</p>
-       <p>{{ form.email.label }}<br>{{ form.email() }}</p>
-       <p>{{ form.password.label }}<br>{{ form.password() }}</p>
-       <p>{{ form.submit() }}</p>
-   </form>
+    <h1>Hello, Welcome to Dogs-as-a-Service!</h1>
+    <p>This is your starting point for exploring our service.</p>
+    <p>Feel free to navigate using the menu above.</p>
 
-   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
- </body>
+  </body>
 </html>
-
 
 
 

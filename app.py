@@ -7,22 +7,18 @@ from wtforms import StringField, PasswordField, SubmitField
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 
-
 app = Flask(__name__)
 app.config.from_object('config')
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-
 # Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
 
 # Define the User model
 class User(UserMixin, db.Model):
@@ -46,14 +42,21 @@ class SignupForm(FlaskForm):
     password = PasswordField('Password')
     submit = SubmitField('Signup')
 
-
-
-
 @app.route('/')
 def home():
     return render_template('index.html')
 
-
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    form = SignupForm()
+    if form.validate_on_submit():
+        hashed_password = generate_password_hash(form.password.data, method='sha256')
+        new_user = User(username=form.username.data, email=form.email.data, password_hash=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+        flash('Successfully signed up! Please log in.')
+        return redirect(url_for('login'))
+    return render_template('signup.html', form=form)
 
 @app.route('/add_user/<username>/<email>', methods=['GET'])
 def add_user(username, email):
@@ -93,16 +96,6 @@ def random_dog():
     data = response.json()
     return f"<img src='{data['message']}'>"
 
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    form = SignupForm()
-    if form.validate_on_submit():
-        new_user = User(username=form.username.data, email=form.email.data)
-        db.session.add(new_user)
-        db.session.commit()
-        return redirect('/login')
-    return render_template('signup.html', form=form)
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -124,11 +117,6 @@ def logout():
 
 if __name__ == '__main__':
     app.run()
-
-
-
-
-
 
 
 
